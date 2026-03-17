@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import AuthRouter from '../src/routes/auth.routes.js'
+import chatRouter from '../src/routes/chats.routes.js'
 import cors from 'cors'
 import morgan from 'morgan'
 // Load environment variables
@@ -20,13 +21,6 @@ app.use(cors({
   methods:["GET","POST","PUT","DELETE"]
 }))
 
-// CORS Headers (optional - uncomment if needed)
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-//   next();
-// });
 
 // Basic Health Check Route
 app.get('/health', (req, res) => {
@@ -37,6 +31,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', AuthRouter) 
+app.use('/api/chats', chatRouter)
 
 // Test Route
 app.get('/api/test', (req, res) => {
@@ -45,6 +40,9 @@ app.get('/api/test', (req, res) => {
     status: 'success'
   });
 });
+
+  
+
 
 // 404 Handler
 app.use((req, res) => {
@@ -64,5 +62,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use('/api/auth', AuthRouter)  
+
 export default app;

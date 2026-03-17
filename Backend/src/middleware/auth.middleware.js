@@ -24,6 +24,7 @@ try{
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     console.log(decoded)
     req.user = decoded
+    console.log(req.user)
     next()
 
         }
