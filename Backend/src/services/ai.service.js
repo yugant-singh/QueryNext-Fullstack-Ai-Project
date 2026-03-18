@@ -1,10 +1,13 @@
 
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatGroq } from "@langchain/groq";
 import{ChatMistralAI} from '@langchain/mistralai'
 import { HumanMessage, SystemMessage,AIMessage } from "@langchain/core/messages";
-const geminiModel = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-flash-lite",
-  apiKey: process.env.GEMINI_API_KEY
+
+
+
+const groqModel = new ChatGroq({
+  model: "llama-3.3-70b-versatile",
+  apiKey: process.env.GROQ_API_KEY
 });
 
 const mistralModal = new ChatMistralAI({
@@ -13,16 +16,18 @@ const mistralModal = new ChatMistralAI({
 })
 
 export async function generateResponse(messages) {
-  const response = await geminiModel.invoke(messages.map(msg=>{
-    if(msg.role =="user"){
-         return new HumanMessage(msg.content)
-    } else if( msg.role =="ai" ){
-      return new AIMessage(msg.content)
-    }
-   
-  }));
+  const formattedMessages = [
+    new SystemMessage("You are a helpful AI assistant. Answer questions clearly and concisely."),
+    ...messages
+      .filter(msg => msg.content)
+      .map(msg => {
+        if (msg.role === "user") return new HumanMessage(msg.content)
+        return new AIMessage(msg.content)
+      })
+  ]
 
-  return response.content;
+  const response = await groqModel.invoke(formattedMessages)
+  return response.content
 }
 
 export async function generateMistralTitle(message) {
