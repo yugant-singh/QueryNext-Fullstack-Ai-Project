@@ -16,15 +16,20 @@ const mistralModal = new ChatMistralAI({
 
 const modelWithTools = groqModel.bindTools([searchTool, imageGenTool])
 
-export async function generateResponse(messages) {
+export async function generateResponse(messages, fileText = null) {
   try {
-    const formattedMessages = [
-      new SystemMessage(`You are a helpful AI assistant like Perplexity.
+
+    const systemPrompt = fileText
+      ? `You are a helpful AI assistant. The user has uploaded a file with the following content:\n\n${fileText}\n\nAnswer questions based on this file content only. Be specific and accurate. Do NOT use any tools.`
+      : `You are a helpful AI assistant like Perplexity.
 You MUST follow these rules strictly:
 1. ALWAYS use tavily_search tool for ANY question about current events, news, sports, weather, scores, or anything that requires up-to-date information. Never answer from your own knowledge for such topics.
 2. ALWAYS use image_generator tool when user asks to generate, create, or make an image.
 3. Never say "my knowledge cutoff" - always use the search tool instead.
-4. For general knowledge questions that do not need real-time data, answer directly.`),
+4. For general knowledge questions that do not need real-time data, answer directly.`
+
+    const formattedMessages = [
+      new SystemMessage(systemPrompt),
       ...messages
         .filter(msg => msg.content)
         .map(msg => {
@@ -33,10 +38,14 @@ You MUST follow these rules strictly:
         })
     ]
 
-    const response = await modelWithTools.invoke(formattedMessages)
+    // fileText hai toh tools use mat karo
+    const response = fileText
+      ? await groqModel.invoke(formattedMessages)
+      : await modelWithTools.invoke(formattedMessages)
+
     console.log("Tool calls:", JSON.stringify(response.tool_calls))
 
-    if (response.tool_calls && response.tool_calls.length > 0) {
+    if (!fileText && response.tool_calls && response.tool_calls.length > 0) {
       const toolCall = response.tool_calls[0]
 
       if (toolCall.name === "tavily_search") {
@@ -52,15 +61,15 @@ You MUST follow these rules strictly:
         ])
         return finalResponse.content
 
-     } else if (toolCall.name === "image_generator") {
-  console.log("Image tool called!", toolCall.args)
-  const imageData = await imageGenTool.invoke(toolCall.args)
-  console.log("Image data length:", imageData?.length) // ← add karo
-  
-  if (!imageData) return "Sorry, image generation failed."
-  
-  return `![generated image](${imageData})`
-}
+      } else if (toolCall.name === "image_generator") {
+        console.log("Image tool called!", toolCall.args)
+        const imageData = await imageGenTool.invoke(toolCall.args)
+        console.log("Image URL:", imageData)
+
+        if (!imageData) return "Sorry, image generation failed."
+
+        return `![generated image](${imageData})`
+      }
     }
 
     return response.content
