@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+
 import { useSelector } from 'react-redux'
 import { useChat } from '../hooks/useChat'
+
 
 const Logo = () => (
   <div className="flex items-center gap-2 px-3 py-4 mb-2">
@@ -29,10 +32,54 @@ const Logo = () => (
   </div>
 );
 
+// Custom components for ReactMarkdown
+const markdownComponents = {
+img: ({ src, alt }) => {
+  if (!src) return null  // ← empty src pe kuch mat dikhao
+  return (
+    <img
+      src={src}
+      alt={alt || "generated image"}
+      style={{ maxWidth: "100%", maxHeight: 400, borderRadius: 12, marginTop: 8 }}
+    />
+  )
+},
+  a: ({ href, children }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer"
+      style={{ color: "#a5a0ff", textDecoration: "underline" }}>
+      {children}
+    </a>
+  ),
+  code: ({ children }) => (
+    <code style={{
+      background: "rgba(108,99,255,0.15)",
+      padding: "2px 6px",
+      borderRadius: 4,
+      fontSize: 12,
+      color: "#a5a0ff"
+    }}>
+      {children}
+    </code>
+  ),
+  pre: ({ children }) => (
+    <pre style={{
+      background: "rgba(0,0,0,0.3)",
+      padding: "12px 16px",
+      borderRadius: 8,
+      overflowX: "auto",
+      fontSize: 12,
+      marginTop: 8,
+      marginBottom: 8
+    }}>
+      {children}
+    </pre>
+  )
+}
+
 export default function Dashboard() {
   const [input, setInput] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [hoveredChat, setHoveredChat] = useState(null); // ← hover state
+  const [hoveredChat, setHoveredChat] = useState(null);
 
   const { handleGetAllChats, handleGetChatMessages, handleSendMessage, handleNewChat, handleDeleteChat } = useChat()
 
@@ -102,7 +149,6 @@ export default function Dashboard() {
               backdropFilter: "blur(16px)",
             }}
           >
-            {/* Close button on mobile */}
             <button
               className="md:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:opacity-70"
               style={{ background: "rgba(255,255,255,0.07)", color: "#94A3B8" }}
@@ -115,7 +161,6 @@ export default function Dashboard() {
 
             <Logo />
 
-            {/* New Chat Button */}
             <button
               className="flex cursor-pointer items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium mb-4 transition-all duration-200 hover:opacity-80"
               style={{
@@ -131,12 +176,10 @@ export default function Dashboard() {
               New Chat
             </button>
 
-            {/* Label */}
             <p className="text-xs font-semibold uppercase tracking-widest px-2 mb-2" style={{ color: "#475569" }}>
               Recent
             </p>
 
-            {/* Chat List */}
             <div className="flex-1 overflow-y-auto flex flex-col gap-1">
               {chats.map((chat) => (
                 <div
@@ -149,7 +192,6 @@ export default function Dashboard() {
                   onMouseEnter={() => setHoveredChat(chat._id)}
                   onMouseLeave={() => setHoveredChat(null)}
                 >
-                  {/* Chat title */}
                   <button
                     onClick={() => handleChatSelect(chat._id)}
                     className="flex-1 text-left px-3 py-2.5 text-sm truncate cursor-pointer"
@@ -163,7 +205,6 @@ export default function Dashboard() {
                     {chat.title}
                   </button>
 
-                  {/* Delete button — hover pe dikhta hai */}
                   {hoveredChat === chat._id && (
                     <button
                       className="absolute cursor-pointer right-2 w-6 h-6 flex items-center justify-center rounded-md transition-all duration-200"
@@ -186,7 +227,6 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* User Account */}
             <div
               className="mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 hover:opacity-80"
               style={{
@@ -262,7 +302,6 @@ export default function Dashboard() {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-5 flex flex-col gap-4">
 
-              {/* Empty state */}
               {messages.length === 0 && !loading && (
                 <div className="flex-1 flex flex-col items-center justify-center h-full text-center px-4">
                   <div
@@ -304,9 +343,12 @@ export default function Dashboard() {
                     }}
                   >
                     {msg.role === 'ai' ? (
-                      <div className="prose prose-invert prose-sm max-w-none">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={markdownComponents}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     ) : (
                       msg.content
                     )}
@@ -314,7 +356,6 @@ export default function Dashboard() {
                 </div>
               ))}
 
-              {/* Loading indicator */}
               {loading && (
                 <div className="flex justify-start">
                   <div

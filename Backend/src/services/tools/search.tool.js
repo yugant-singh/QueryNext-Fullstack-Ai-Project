@@ -1,7 +1,27 @@
-import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
-const searchTool = new TavilySearchResults({
-  maxResults: 5,
-  apiKey: process.env.TAVILY_API_KEY
-});
+import { tavily } from "@tavily/core";
 
-export default searchTool
+const client = tavily({ apiKey: process.env.TAVILY_API_KEY });
+
+const searchTool = {
+  type: "function",
+  function: {
+    name: "tavily_search",
+    description: "Search the internet for current information and latest news",
+    parameters: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "The search query"
+        }
+      },
+      required: ["query"]
+    }
+  },
+  invoke: async ({ query }) => {
+    const result = await client.search(query, { maxResults: 5 })
+    return JSON.stringify(result.results)
+  }
+}
+
+export default searchTool;

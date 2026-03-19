@@ -4,6 +4,10 @@ import AuthRouter from '../src/routes/auth.routes.js'
 import chatRouter from '../src/routes/chats.routes.js'
 import cors from 'cors'
 import morgan from 'morgan'
+import path from 'path'
+import { fileURLToPath } from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 // Load environment variables
 
 
@@ -20,6 +24,7 @@ app.use(cors({
   credentials:true,
   methods:["GET","POST","PUT","DELETE"]
 }))
+app.use('/images', express.static(path.join(__dirname, '../public/images')))
 
 
 // Basic Health Check Route
