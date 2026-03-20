@@ -4,10 +4,8 @@ import AuthRouter from '../src/routes/auth.routes.js'
 import chatRouter from '../src/routes/chats.routes.js'
 import cors from 'cors'
 import morgan from 'morgan'
-import path from 'path'
-import { fileURLToPath } from 'url'
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+
+
 // Load environment variables
 
 
@@ -17,15 +15,16 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.static("./public"))
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(morgan("dev"))
 app.use(cors({
   origin:"http://localhost:5173",
   credentials:true,
   methods:["GET","POST","PUT","DELETE"]
 }))
-app.use('/images', express.static(path.join(__dirname, '../public/images')))
+
+app.use(cookieParser());
+app.use(morgan("dev"))
+
+
 
 
 // Basic Health Check Route
