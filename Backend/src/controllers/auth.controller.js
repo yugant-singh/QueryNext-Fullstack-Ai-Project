@@ -35,13 +35,13 @@ export async function register(req, res) {
     try {
       await sendEmail({
         to: email,
-        subject: 'Welcome to the QueryNest!',
+        subject: 'Welcome to the QueryNext!',
         text: 'Thank you for registering with us!',
         html: `<p>Hi ${username},</p>
                <p>Thank you for registering with us! We're excited to have you on board.</p>
                <p>Please verify your email address by clicking the link below:</p>
                <a href="${process.env.BASE_URL}/api/auth/verify-email?token=${token}">Verify Email</a>
-               <p>Best regards,<br/>The QueryNest Team</p>`
+               <p>Best regards,<br/>The QueryNext Team</p>`
       })
     } catch (emailErr) {
       console.error("Email sending failed:", emailErr.message)

@@ -79,7 +79,7 @@ export default function Home() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                QueryNest
+                QueryNext
               </span>
             </div>
 
@@ -259,11 +259,11 @@ export default function Home() {
                   WebkitTextFillColor: "transparent",
               }}
             >
-              QueryNest
+              QueryNext
             </span>
           </div>
           <p className="text-xs" style={{ color: "#E6E4FF", fontFamily: "'DM Sans', sans-serif" }}>
-            © {new Date().getFullYear()} QueryNest. Built with ❤️ by Yugant.
+            © {new Date().getFullYear()} QueryNext. Built with ❤️ by Yugant.
           </p>
         </footer>
 
