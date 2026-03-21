@@ -27,9 +27,9 @@ const Register = () => {
 
     // Frontend validation
     const errors = {}
-    if (username.trim().length < 3) errors.username = "Username kam se kam 3 characters ka hona chahiye"
-    if (!email.includes('@') || !email.includes('.')) errors.email = "Valid email address daalo"
-    if (password.length < 6) errors.password = "Password kam se kam 6 characters ka hona chahiye"
+    if (username.trim().length < 3) errors.username = "Username contains atleast 3 characters"
+    if (!email.includes('@') || !email.includes('.')) errors.email = " Please enter valid email address "
+    if (password.length < 6) errors.password = "Password contains atleast 6 characters"
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors)

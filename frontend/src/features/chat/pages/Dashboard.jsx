@@ -89,6 +89,13 @@ export default function Dashboard() {
     setSidebarOpen(false)
   }
 
+  // Mobile pe bahar click se sidebar band karo
+  const handleOutsideClick = (e) => {
+    if (sidebarOpen && sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+      setSidebarOpen(false)
+    }
+  }
+
   return (
     <>
       <style>{`
@@ -99,11 +106,21 @@ export default function Dashboard() {
         ::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.3); border-radius: 10px; }
         textarea { caret-color: #6C63FF; }
         textarea:focus { outline: none; }
-        .touch-btn {
+        .sidebar-btn {
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
           cursor: pointer;
-          user-select: none;
+        }
+        /* Mobile overlay */
+        .mobile-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.6);
+          z-index: 29;
+          display: none;
+        }
+        @media (max-width: 767px) {
+          .mobile-overlay.active { display: block; }
         }
       `}</style>
 
@@ -118,26 +135,16 @@ export default function Dashboard() {
             style={{ background: "radial-gradient(circle, #8B5CF6, transparent 70%)", filter: "blur(60px)" }} />
         </div>
 
-        {/* Mobile Overlay — sirf bahar click pe band karo */}
-        {sidebarOpen && (
-          <div
-            className="fixed top-0 left-0 w-full h-full md:hidden"
-            style={{ zIndex: 20, background: "rgba(0,0,0,0.6)" }}
-            onTouchStart={(e) => {
-              // Sirf sidebar ke bahar touch karne pe band karo
-              if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
-                setSidebarOpen(false)
-              }
-            }}
-            onClick={(e) => {
-              if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
-                setSidebarOpen(false)
-              }
-            }}
-          />
-        )}
+        {/* Mobile overlay — sirf visual, pointer-events nahi */}
+        <div
+          className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`}
+          onClick={() => setSidebarOpen(false)}
+        />
 
-        <div className="relative z-10 flex h-full w-full p-2 md:p-4 gap-3">
+        <div
+          className="relative z-10 flex h-full w-full p-2 md:p-4 gap-3"
+          onClick={handleOutsideClick}
+        >
 
           {/* Sidebar */}
           <div
@@ -147,12 +154,13 @@ export default function Dashboard() {
               background: "rgba(15,15,30,0.97)",
               border: "1px solid rgba(255,255,255,0.08)",
               backdropFilter: "blur(16px)",
-              zIndex: 40, // ← overlay se upar
+              zIndex: 30,
             }}
+            onClick={(e) => e.stopPropagation()} // ← sidebar ke andar clicks bahar nahi jayenge
           >
             {/* Mobile close button */}
             <button
-              className="touch-btn md:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg"
+              className="sidebar-btn md:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg"
               style={{ background: "rgba(255,255,255,0.07)", color: "#94A3B8", border: "none" }}
               onClick={() => setSidebarOpen(false)}
             >
@@ -165,7 +173,7 @@ export default function Dashboard() {
 
             {/* New Chat Button */}
             <button
-              className="touch-btn flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium mb-4 transition-all duration-200 hover:opacity-80"
+              className="sidebar-btn flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium mb-4 transition-all duration-200 hover:opacity-80"
               style={{ background: "rgba(108,99,255,0.15)", border: "1px solid rgba(108,99,255,0.25)", color: "#a5a0ff" }}
               onClick={() => { handleNewChat(); setSidebarOpen(false) }}
             >
@@ -191,7 +199,7 @@ export default function Dashboard() {
                   onMouseLeave={() => setHoveredChat(null)}
                 >
                   <button
-                    className="touch-btn flex-1 text-left px-3 py-2.5 text-sm truncate"
+                    className="sidebar-btn flex-1 text-left px-3 py-2.5 text-sm truncate"
                     style={{
                       color: activeChat === chat._id ? "#a5a0ff" : "#94A3B8",
                       background: "transparent",
@@ -204,7 +212,7 @@ export default function Dashboard() {
                   </button>
 
                   <button
-                    className="touch-btn absolute right-2 w-6 h-6 flex items-center justify-center rounded-md transition-all"
+                    className="sidebar-btn absolute right-2 w-6 h-6 flex items-center justify-center rounded-md transition-all"
                     style={{
                       color: "#EF4444",
                       border: "none",
@@ -229,7 +237,7 @@ export default function Dashboard() {
                   style={{ background: "rgba(15,15,35,0.98)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", zIndex: 50 }}
                 >
                   <button
-                    className="touch-btn w-full flex items-center gap-3 px-4 py-3 text-sm transition-all hover:opacity-80"
+                    className="sidebar-btn w-full flex items-center gap-3 px-4 py-3 text-sm transition-all hover:opacity-80"
                     style={{ background: "transparent", border: "none", color: "#94A3B8" }}
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
@@ -242,7 +250,7 @@ export default function Dashboard() {
                   <div style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
 
                   <button
-                    className="touch-btn w-full flex items-center gap-3 px-4 py-3 text-sm transition-all hover:opacity-80"
+                    className="sidebar-btn w-full flex items-center gap-3 px-4 py-3 text-sm transition-all hover:opacity-80"
                     style={{ background: "transparent", border: "none", color: "#EF4444" }}
                     onClick={() => { handleLogOut(); setDropdownOpen(false); setSidebarOpen(false) }}
                   >
@@ -255,9 +263,8 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* User Card */}
               <button
-                className="touch-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 hover:opacity-80"
+                className="sidebar-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 hover:opacity-80"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
@@ -286,7 +293,7 @@ export default function Dashboard() {
               style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
               <div className="flex items-center gap-3">
                 <button
-                  className="touch-btn md:hidden w-8 h-8 flex items-center justify-center rounded-lg"
+                  className="sidebar-btn md:hidden w-8 h-8 flex items-center justify-center rounded-lg"
                   style={{ background: "rgba(255,255,255,0.06)", color: "#94A3B8", border: "none" }}
                   onClick={() => setSidebarOpen(true)}
                 >
@@ -415,7 +422,7 @@ export default function Dashboard() {
                   }}
                 />
                 <label htmlFor="file-upload"
-                  className="touch-btn cursor-pointer flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:opacity-80"
+                  className="sidebar-btn cursor-pointer flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:opacity-80"
                   style={{ background: fileText ? "rgba(108,99,255,0.3)" : "rgba(108,99,255,0.15)", color: "#a5a0ff" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"
@@ -432,7 +439,7 @@ export default function Dashboard() {
                 />
 
                 <button onClick={handleSend} disabled={loading}
-                  className="touch-btn w-8 h-8 md:w-9 md:h-9 rounded-xl flex-shrink-0 flex items-center justify-center transition-all duration-150 hover:opacity-80 active:scale-95 disabled:opacity-50"
+                  className="sidebar-btn w-8 h-8 md:w-9 md:h-9 rounded-xl flex-shrink-0 flex items-center justify-center transition-all duration-150 hover:opacity-80 active:scale-95 disabled:opacity-50"
                   style={{ background: "linear-gradient(135deg, #6C63FF, #8B5CF6)", boxShadow: "0 0 16px rgba(108,99,255,0.4)", border: "none" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"
