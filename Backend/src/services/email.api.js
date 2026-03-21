@@ -1,22 +1,22 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GOOGLE_USER,
+    pass: process.env.GMAIL_APP_PASSWORD  
+  }
+})
 
 export const sendEmail = async ({ to, subject, text, html }) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'QueryNest <onboarding@resend.dev>',
+    const info = await transporter.sendMail({
+      from: `QueryNest <${process.env.GOOGLE_USER}>`,
       to,
       subject,
       html
     })
-
-    if (error) {
-      console.error("Resend error:", error)
-      throw new Error(error.message)
-    }
-
-    console.log("Email sent successfully:", data)
+    console.log("Email sent:", info.response)
   } catch (err) {
     console.error("Email sending failed:", err.message)
     throw err
