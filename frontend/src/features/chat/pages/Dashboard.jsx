@@ -89,13 +89,7 @@ export default function Dashboard() {
     setSidebarOpen(false)
   }
 
-  // Mobile pe bahar click se sidebar band karo
-  const handleOutsideClick = (e) => {
-    if (sidebarOpen && sidebarRef.current && !sidebarRef.current.contains(e.target)) {
-      setSidebarOpen(false)
-    }
-  }
-
+  
   return (
     <>
       <style>{`
@@ -116,7 +110,7 @@ export default function Dashboard() {
           position: fixed;
           inset: 0;
           background: rgba(0,0,0,0.6);
-          z-index: 29;
+       z-index: 20;
           display: none;
         }
         @media (max-width: 767px) {
@@ -143,7 +137,7 @@ export default function Dashboard() {
 
         <div
           className="relative z-10 flex h-full w-full p-2 md:p-4 gap-3"
-          onClick={handleOutsideClick}
+      
         >
 
           {/* Sidebar */}
@@ -154,9 +148,9 @@ export default function Dashboard() {
               background: "rgba(15,15,30,0.97)",
               border: "1px solid rgba(255,255,255,0.08)",
               backdropFilter: "blur(16px)",
-              zIndex: 30,
+             zIndex: 50,
             }}
-            onClick={(e) => e.stopPropagation()} // ← sidebar ke andar clicks bahar nahi jayenge
+           
           >
             {/* Mobile close button */}
             <button
