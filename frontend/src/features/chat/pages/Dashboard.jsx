@@ -129,11 +129,8 @@ export default function Dashboard() {
             style={{ background: "radial-gradient(circle, #8B5CF6, transparent 70%)", filter: "blur(60px)" }} />
         </div>
 
-        {/* Mobile overlay — sirf visual, pointer-events nahi */}
-        <div
-          className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`}
-          onClick={() => setSidebarOpen(false)}
-        />
+     
+       
 
         <div
           className="relative z-10 flex h-full w-full p-2 md:p-4 gap-3"
