@@ -16,7 +16,7 @@
 ## 📸 Screenshots
 
 > **Home Page**
-![Home Page](./frontend/src/assets/hero-bg.jpg)
+![Home Page](./frontend/src/assets/QueryNext%20Homepage.png)
 
 > _Dashboard, Login, and Register pages available on the live demo._
 
